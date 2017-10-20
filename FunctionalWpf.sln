@@ -1,13 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WpfTypes", "WpfTypes\WpfTypes.fsproj", "{B211ADB0-426E-4456-8140-9F07F5136DD2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfTypesC", "WpfTypesC\WpfTypesC.csproj", "{E9522F79-F2E5-4E4B-B54F-9BDE4D37CFBA}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApp1", "WpfApp1\WpfApp1.csproj", "{8C1704BF-0FFD-45E0-9FEE-A034ADE26700}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WpfComponents", "WpfComponents\WpfComponents.fsproj", "{7E9DAFF5-6FE8-4F40-94DA-1FA5F73395FA}"
 EndProject
@@ -25,10 +23,6 @@ Global
 		{E9522F79-F2E5-4E4B-B54F-9BDE4D37CFBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E9522F79-F2E5-4E4B-B54F-9BDE4D37CFBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E9522F79-F2E5-4E4B-B54F-9BDE4D37CFBA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8C1704BF-0FFD-45E0-9FEE-A034ADE26700}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8C1704BF-0FFD-45E0-9FEE-A034ADE26700}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8C1704BF-0FFD-45E0-9FEE-A034ADE26700}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8C1704BF-0FFD-45E0-9FEE-A034ADE26700}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7E9DAFF5-6FE8-4F40-94DA-1FA5F73395FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7E9DAFF5-6FE8-4F40-94DA-1FA5F73395FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E9DAFF5-6FE8-4F40-94DA-1FA5F73395FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
