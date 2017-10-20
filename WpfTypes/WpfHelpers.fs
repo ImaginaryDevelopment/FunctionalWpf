@@ -206,10 +206,9 @@ module WpfHelpers =
             )
             childs |> Seq.tryFind f
         | x -> Some x
-        
-        
-open WpfHelpers
 
+
+open WpfHelpers
 
 type PasswordBoxAssistant () = // for another method to do dep props in f# check http://jyliao.blogspot.com/2007/12/working-with-f-dependencyproperty-and.html
     static let fstaticDp (p, pm) =

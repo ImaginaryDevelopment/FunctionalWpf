@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.FSharp.Core;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -15,9 +16,4 @@ namespace WpfApp1
     {
     }
 
-    public class LoginCredential
-    {
-        public string Username { get; set; }
-        public string Password { get; set; }
-    }
 }

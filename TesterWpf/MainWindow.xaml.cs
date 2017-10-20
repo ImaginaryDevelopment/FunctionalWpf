@@ -21,9 +21,14 @@ namespace WpfApp1
     {
         public MainWindow()
         {
-            this.DataContext = new FunctionalFun.UI.Credential(); //.LoginCredential();
+            this.DataContext = new WpfComponents.LoginComponent.LoginCredential(); //.LoginCredential();
             InitializeComponent();
             //this.DataContext = new LoginCredential();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            var x = WpfComponents.LoginComponent.MakeLoginWindow();
         }
     }
 }

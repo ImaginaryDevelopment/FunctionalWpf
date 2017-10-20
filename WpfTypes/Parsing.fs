@@ -4,7 +4,8 @@ open System
 open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
 
-module FunctionalXaml = 
+// derived from http://fsharpcode.blogspot.it/2011/07/functional-wpf-part-five-simple-example.html
+module FunctionalXaml =
 
     type Color = Red | Green | Blue
     type Orientation = Horizontal | Vertical
@@ -12,18 +13,20 @@ module FunctionalXaml =
     type Attribute = 
         | Width of int
         | Height of int
+        | RawAttribute of string
+        | NsDeclaration of string*string
 
-    type DataTemplate = DataTemplate of FFrameworkElement
-    and FFrameworkElement
+    type DataTemplate = DataTemplate of FunFrameworkElement
+    and FunFrameworkElement
         = Label of string * Attribute list
         | Button of String
         | TextBox of Attribute list * Expr
         | PasswordBox of name:string*Attribute list * Expr
-        | StackPanel of FFrameworkElement list * Attribute list * Orientation
-        | Border of Color * FFrameworkElement
+        | StackPanel of FunFrameworkElement list * Attribute list * Orientation
+        | Border of Color * FunFrameworkElement
         | ItemsControl of DataTemplate
-    type Window = Window of FFrameworkElement * Attribute list
-    type Application = Application of Window * Map<string,string>
+    type FunWindow = Window of FunFrameworkElement * Attribute list
+    type Application = Application of FunWindow * Map<string,string>
 
     let width = Width
     let height = Height
@@ -32,6 +35,7 @@ module FunctionalXaml =
     let label attrs s = Label(s,attrs)
     let button = Button
     let textbox attrs b = TextBox(attrs,b)
+    let rawAttribute x = RawAttribute x
     let itemscontrol = ItemsControl
     let datatemplate = DataTemplate
     let application = Application
@@ -63,6 +67,12 @@ module FunctionalParsing =
         match attr with
         | Width x -> sprintf @"Width = ""%i""" x
         | Height x -> sprintf @"Height = ""%i""" x
+        | RawAttribute x -> x
+        | NsDeclaration (k,v) -> 
+            match k with 
+            | null -> 
+                sprintf "xmlns=\"%s\"" v
+            | k -> sprintf "xmlns:%s=\"%s\"" k v
 
     let parseAttributes =
         List.fold (fun acc x -> sprintf "%s %s" acc (parseAttribute x)) ""
@@ -116,19 +126,19 @@ module FunctionalParsing =
                 sprintf @"<Window %s>%s</Window>"
                         (parseAttributes attrs)
                         (parseFrameworkElement c)
+    let defaultDeclarations = 
+        sprintf """ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" """
 
     let parseApplication (Application (c,nsMap)) =
-        let namespaces = 
+        let namespaces =
             nsMap
             |> Map.keys
             |> Seq.map(fun name ->
                 sprintf "xmlns:%s=\"%s\"" name nsMap.[name]
             )
             |> delimit (sprintf "%s    " Environment.NewLine)
-        sprintf @"<Application
-                   xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
-                   xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
-                   %s>
+        sprintf @"<Application %s>
                    <Application.MainWindow>%s</Application.MainWindow></Application>"
             namespaces
             (parseWindow c)

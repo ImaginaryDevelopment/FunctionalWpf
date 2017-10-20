@@ -95,9 +95,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WpfTypesC\WpfTypesC.csproj">
-      <Project>{e9522f79-f2e5-4e4b-b54f-9bde4d37cfba}</Project>
-      <Name>WpfTypesC</Name>
+    <ProjectReference Include="..\WpfComponents\WpfComponents.fsproj">
+      <Project>{7e9daff5-6fe8-4f40-94da-1fa5f73395fa}</Project>
+      <Name>WpfComponents</Name>
     </ProjectReference>
     <ProjectReference Include="..\WpfTypes\WpfTypes.fsproj">
       <Project>{b211adb0-426e-4456-8140-9f07f5136dd2}</Project>
