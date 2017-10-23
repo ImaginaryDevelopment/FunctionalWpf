@@ -101,7 +101,7 @@ module FunctionalParsing =
                                         (parseAttributes attrs)
                                         (parseBinding b)
         | PasswordBox (name, attrs,b) ->
-            let name = getPropertyName b
+            let bindingName = getPropertyName b
             sprintf @"<PasswordBox x:Name=""%s"" %s />"
                 name
                 (parseAttributes attrs)

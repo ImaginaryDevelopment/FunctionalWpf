@@ -26,9 +26,36 @@ namespace WpfApp1
             //this.DataContext = new LoginCredential();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        void Button_Click(object sender, RoutedEventArgs e)
         {
-            var x = WpfComponents.LoginComponent.MakeLoginWindow();
+            var blob = WpfComponents.LoginComponent.MakeLoginWindow();
+            if (blob.IsChoice1Of2)
+            {
+                var x = WpfTypes.CHelpers.GetChoice1Of2(blob)?.Value;
+                var w = x.Item1;
+                var xaml = x.Item2;
+                var getter = x.Item3;
+
+                if (w.ShowDialog().GetValueOrDefault())
+                {
+                    if (x.Item3 != null)
+                    {
+                        var cred = x.Item3();
+                        Console.WriteLine(cred.ToString());
+                    } else
+                    {
+                        Console.WriteLine("Getter was null");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("ShowDialog returned something else");
+                }
+            }
+            else
+            {
+                Console.WriteLine("blob is Choice2Of2");
+            }
         }
     }
 }

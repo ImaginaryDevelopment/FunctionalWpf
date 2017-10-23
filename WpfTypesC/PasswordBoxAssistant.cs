@@ -12,13 +12,13 @@ namespace FunctionalFun.UI
     public static class PasswordBoxAssistant
     {
         public static readonly DependencyProperty BoundPassword =
-            DependencyProperty.RegisterAttached("BoundPassword", typeof(string), typeof(PasswordBoxAssistant), new PropertyMetadata(string.Empty, OnBoundPasswordChanged));
+            DependencyProperty.RegisterAttached(nameof(BoundPassword), typeof(string), typeof(PasswordBoxAssistant), new PropertyMetadata(string.Empty, OnBoundPasswordChanged));
 
         public static readonly DependencyProperty BindPassword = DependencyProperty.RegisterAttached(
             "BindPassword", typeof(bool), typeof(PasswordBoxAssistant), new PropertyMetadata(false, OnBindPasswordChanged));
 
         private static readonly DependencyProperty UpdatingPassword =
-            DependencyProperty.RegisterAttached("UpdatingPassword", typeof(bool), typeof(PasswordBoxAssistant), new PropertyMetadata(false));
+            DependencyProperty.RegisterAttached(nameof(UpdatingPassword), typeof(bool), typeof(PasswordBoxAssistant), new PropertyMetadata(false));
 
         private static void OnBoundPasswordChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -44,7 +44,7 @@ namespace FunctionalFun.UI
             box.PasswordChanged += HandlePasswordChanged;
         }
 
-        private static void OnBindPasswordChanged(DependencyObject dp, DependencyPropertyChangedEventArgs e)
+        static void OnBindPasswordChanged(DependencyObject dp, DependencyPropertyChangedEventArgs e)
         {
             // when the BindPassword attached property is set on a PasswordBox,
             // start listening to its PasswordChanged event
@@ -70,7 +70,7 @@ namespace FunctionalFun.UI
             }
         }
 
-        private static void HandlePasswordChanged(object sender, RoutedEventArgs e)
+        static void HandlePasswordChanged(object sender, RoutedEventArgs e)
         {
             PasswordBox box = sender as PasswordBox;
 
