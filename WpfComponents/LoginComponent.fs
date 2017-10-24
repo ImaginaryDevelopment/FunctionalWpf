@@ -15,6 +15,7 @@ module LoginComponent =
     open System.Windows.Markup
 
     let private pboxName = "IAmAPassword"
+    let private btnName = "IAmASubmitButton"
     let handleBinding<'T when 'T :> Control> name (f:'T -> bool) parent = 
         let withMaybe fNone (x:obj option) = 
             match x with
@@ -36,6 +37,14 @@ module LoginComponent =
             | Some ctrl ->
                 f ctrl
             | None -> false
+    let handleDiaglogPositiveButtonBinding parent btnName (w:Window) = 
+        let bindIt (b:Button) = 
+            printfn "Name is %s" b.Name
+            b.Click.Add (fun _ ->
+                w.DialogResult <- Nullable true
+                w.Close())
+            true
+        handleBinding btnName bindIt parent
 
     let handlePbBinding parent bindingExpr =
         let bindIt (pb:PasswordBox) =
@@ -71,7 +80,7 @@ module LoginComponent =
         // Final composition
         let sampleGrid = [ header
                            row
-                           button {Content="submit";Name="btnSubmit"} ] |> stackpanel [width 250] Vertical
+                           button {Content="submit";Name=btnName} ] |> stackpanel [width 250] Vertical
                                              |> border Blue
 
         // Main Window
@@ -92,6 +101,7 @@ module LoginComponent =
             let w = XamlReader.Parse xaml :?> Window
             let model = LoginCredential()
             w.DataContext <- model
+            handleDiaglogPositiveButtonBinding w btnName w |> ignore<bool>
             match handlePbBinding w pwdExpr with
             | true ->
                 Choice1Of3(w, xaml, Some (fun () -> model))
