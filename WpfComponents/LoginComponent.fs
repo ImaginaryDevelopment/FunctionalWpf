@@ -14,10 +14,32 @@ module LoginComponent =
     open FunctionalParsing
     open System.Windows.Markup
 
-    let private pboxName = "INeedCandy"
+    let private pboxName = "IAmAPassword"
+    let handleBinding<'T when 'T :> Control> name (f:'T -> bool) parent = 
+        let withMaybe fNone (x:obj option) = 
+            match x with
+            | Some (:? 'T as ctrl) ->
+                Some ctrl
+            | Some x ->
+                getXaml x
+                |> failwithf "Found something else %A"
+            | None -> fNone()
+        findByNameOrChildren name parent
+        |> withMaybe (fun () -> 
+            walkChildren parent 
+                |> Seq.collect Tree.flatten
+                |> Seq.map Child.GetValue
+                |> Seq.choose (function | :? 'T as ctrl -> Some ctrl | _ -> None)
+                |> Seq.tryHead
+        )
+        |> function 
+            | Some ctrl ->
+                f ctrl
+            | None -> false
 
-    let handlePbBinding parent bindingExpr =
+    let handlePbBinding' parent bindingExpr =
         let bindIt (pb:PasswordBox) =
+            printfn "Name is %s" pb.Name
             let binding = System.Windows.Data.Binding()
             let bindingName = getPropertyName bindingExpr
             binding.Path <- PropertyPath(bindingName)
@@ -26,27 +48,42 @@ module LoginComponent =
 
             pb.SetBinding(bp, binding) |> ignore
             WpfTypes.PasswordBoxAssistant.SetBindPassword pb (box true)
-
-        findByNameOrChildren pboxName parent
-        |> function
-        | Some (:? PasswordBox as pb) ->
-            bindIt pb
             true
-        | Some x ->
-            getXaml x
-            |> failwithf "Found something else %A"
-        | None ->
-            walkChildren parent
-            |> Seq.collect Tree.flatten
-            |> Seq.map Child.GetValue
-            |> Seq.choose (function | :? PasswordBox as pb -> Some pb | _ -> None)
-            |> Seq.tryHead
-            |> function
-                | Some pb ->
-                    bindIt pb
-                | None ->
-                    printfn "Did not find it =("
-            false
+
+        handleBinding pboxName bindIt parent
+
+    //let handlePbBinding parent bindingExpr =
+    //    let bindIt (pb:PasswordBox) =
+    //        printfn "Name is %s" pb.Name
+    //        let binding = System.Windows.Data.Binding()
+    //        let bindingName = getPropertyName bindingExpr
+    //        binding.Path <- PropertyPath(bindingName)
+    //        binding.Mode <- Data.BindingMode.OneWayToSource
+    //        let bp = WpfTypes.PasswordBoxAssistant.BoundPasswordProperty
+
+    //        pb.SetBinding(bp, binding) |> ignore
+    //        WpfTypes.PasswordBoxAssistant.SetBindPassword pb (box true)
+
+    //    findByNameOrChildren pboxName parent
+    //    |> function
+    //    | Some (:? PasswordBox as pb) ->
+    //        bindIt pb
+    //        true
+    //    | Some x ->
+    //        getXaml x
+    //        |> failwithf "Found something else %A"
+    //    | None ->
+    //        walkChildren parent
+    //        |> Seq.collect Tree.flatten
+    //        |> Seq.map Child.GetValue
+    //        |> Seq.choose (function | :? PasswordBox as pb -> Some pb | _ -> None)
+    //        |> Seq.tryHead
+    //        |> function
+    //            | Some pb ->
+    //                bindIt pb
+    //            | None ->
+    //                printfn "Did not find it =("
+    //        false
 
     let makeLoginWindowXaml usernameExpr =
         // Header
@@ -67,7 +104,7 @@ module LoginComponent =
         // Final composition
         let sampleGrid = [ header
                            row
-                           button "submit" ] |> stackpanel [width 250] Vertical
+                           button {Content="submit";Name="btnSubmit"} ] |> stackpanel [width 250] Vertical
                                              |> border Blue
 
         // Main Window
@@ -88,14 +125,11 @@ module LoginComponent =
             let w = XamlReader.Parse xaml :?> Window
             let model = LoginCredential()
             w.DataContext <- model
-            handlePbBinding w pwdExpr |> ignore<bool>
-            Choice1Of2(w, xaml, Some (fun () -> model))
+            match handlePbBinding' w pwdExpr with
+            | true ->
+                Choice1Of3(w, xaml, Some (fun () -> model))
+            | false -> 
+                Choice2Of3(w,xaml, Some (fun () -> model))
         with _ ->
-            Choice2Of2 xaml
-
-    let MakeLoginWindow () =
-        match makeLoginWindow () with
-        | Choice1Of2(w,x,f) ->
-            Choice1Of2(w, x, (match f with | Some f -> Func<_>(f) | None -> null))
-        | Choice2Of2 x -> Choice2Of2 x
+            Choice3Of3 xaml
 

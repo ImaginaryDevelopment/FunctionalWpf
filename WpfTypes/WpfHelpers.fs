@@ -11,7 +11,6 @@ module WpfHelpers =
     open System.Windows.Media
     open System.Windows.Markup
     open System.ComponentModel
-    open Helpers
 
     // guard against the outer 'T and inner 'T being different types
     type PropertyMetadataType<'T> = 
@@ -43,7 +42,7 @@ module WpfHelpers =
         member __.SetValue dObj v = setValue(dObj,v)
         member __.SetValue' dObj (v:obj) = setValue(dObj, v :?> 'TValue)
         member __.DP = dp
-        
+
     let getXaml(o:obj) =
         try
             XamlWriter.Save(o)
@@ -54,16 +53,16 @@ module WpfHelpers =
             None
 
     let tryDumpXaml (o:obj) = (getXaml o) |> dumpt "xaml?"
-        
-    type Tree<'T> = 
+
+    type Tree<'T> =
         | Leaf of 'T*('T Tree list)
     module Tree =
         let rec map f (Leaf(leaf,children))=
                 Leaf(f leaf, children |> List.map (map f))
-        let rec length (Leaf(leaf,children)) = 
+        let rec length (Leaf(_,children)) = 
             1 + (children |> Seq.map length |> Seq.sum)
         let rec flatten (Leaf(leaf,children) as l) =
-        
+
             let result = 
                 seq{
                     yield leaf
@@ -77,30 +76,29 @@ module WpfHelpers =
                 printfn "Flatten WAS bad"
             result
             |> Seq.ofList
-        
-                
+
     type Child =
         | Logical of obj
         | Visual of DependencyObject
         | Both of DependencyObject
-        with 
+        with
             static member GetValue =
                 function
                 | Logical o -> o
                 | Visual v 
                 | Both v -> box v
     type ChildTree = Tree<Child>
-    
+
     let unionAll<'T> (left:'T list) (right:obj list) fJoin =
         let minCount = if left.Length > 0 || right.Length > 0 then min left.Length right.Length |> max 1 else 0
         let result = 
             seq{
-                yield! 
+                yield!
                     left
                     |> Seq.map(fun l ->
                         Some l, right |> Seq.tryFind (fJoin l)
                     )
-                let rights = 
+                let rights =
                     right
                     |> Seq.filter(fun r ->
                         left |> Seq.exists(fun l -> fJoin l r) |> not
@@ -109,9 +107,9 @@ module WpfHelpers =
                     |> List.ofSeq
                 if right.Length > left.Length && right.Length < 1 then
                     printfn "bad right"
-                
+
                 yield! rights
-                    
+
             }
             |> List.ofSeq
         //if debug then printfn "Left:%i,Right:%i,Result:%i" left.Length right.Length result.Length
@@ -120,13 +118,15 @@ module WpfHelpers =
         result
     let getName (x:obj) : string option= 
         match x with
+        | :? FrameworkElement as fe ->
+            fe.Name |> Option.ofObj
         | :? DependencyObject as dObj ->
-            
+
             dObj.GetValue FrameworkElement.NameProperty
             |> Option.ofObj
             |> Option.map (fun x -> x:?> string)
         | _ -> None
-        
+
     let getVisualChildren (dObj:DependencyObject) : DependencyObject seq =
         let getVChild i = VisualTreeHelper.GetChild(dObj,i)
         seq{
@@ -136,13 +136,14 @@ module WpfHelpers =
                 let items = [0..x - 1] |> Seq.map getVChild
                 yield! items
         }
-        
+
     let getItemsControlElements (ic:ItemsControl) =
         [0.. ic.Items.Count - 1]
         |> Seq.map ic.ItemContainerGenerator.ContainerFromIndex
-        
+
     let mapChildTree = List.map(Tree.map(function | Visual v -> "Visual", v.GetType().Name | Logical l -> "Logical", l.GetType().Name | Both v -> "Both", v.GetType().Name))
 
+    // if an item has to walk down a non-visual tree part, then findName won't be able to find it https://stackoverflow.com/questions/6410157/xaml-named-element-not-found-by-findname
     let rec walkChildren (x:obj) : ChildTree seq = // turn element into sequence of children
         seq{
             match x with
@@ -153,7 +154,7 @@ module WpfHelpers =
                     |> Seq.map(fun item -> ChildTree.Leaf (Visual item, walkChildren item |> List.ofSeq))
                     |> List.ofSeq
                 yield! items |> dumpCount "items control items"
-            | :? DependencyObject as dObj -> 
+            | :? DependencyObject as dObj ->
                 let vChildren = getVisualChildren dObj |> List.ofSeq
                 let items = LogicalTreeHelper.GetChildren(dObj) |> Seq.cast<obj> |> List.ofSeq
                 let minCount = 
@@ -161,13 +162,11 @@ module WpfHelpers =
                 let mated = unionAll vChildren items (fun x y -> Object.ReferenceEquals(x,y)) |> List.ofSeq
                 if mated.Length < minCount then
                     printfn "bad unionall afterall"
-                let unionMapped = 
+                let unionMapped =
                     mated
-                    // can't get 2 None, but what are we gonna do?
                     |> Seq.choose(
                         function
                         | Some dObj,None ->
-                            
                             ChildTree.Leaf(Visual dObj, walkChildren dObj |> List.ofSeq)
                             |> Some
                         | Some dObj, Some _ ->
@@ -176,6 +175,7 @@ module WpfHelpers =
                         | None, Some l ->
                             ChildTree.Leaf(Logical l, walkChildren l |> List.ofSeq)
                             |> Some
+                        // can't get 2 None, but what are we gonna do?
                         | None, None ->
                             printfn "None? this shouldn't have happened"
                             None
@@ -183,10 +183,10 @@ module WpfHelpers =
                     |> List.ofSeq
                 if unionMapped.Length < minCount then
                     printfn "bad unionmap"
-                
+
                 yield! unionMapped
-                    
-                
+
+
             | :? String -> ()
             | x -> x.GetType().Name |> dumpt "no match, non dep object" |> ignore
         }
@@ -200,13 +200,12 @@ module WpfHelpers =
             let childs = getChildren parent
             let f : obj -> bool =
                 getName >> (
-                            function 
-                            | Some (n:string) -> n = name 
+                            function
+                            | Some (n:string) -> n = name
                             | _ -> false
             )
             childs |> Seq.tryFind f
         | x -> Some x
-
 
 open WpfHelpers
 

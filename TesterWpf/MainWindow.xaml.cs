@@ -12,6 +12,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+
+using WpfTypes;
+
 namespace WpfApp1
 {
     /// <summary>
@@ -28,10 +31,11 @@ namespace WpfApp1
 
         void Button_Click(object sender, RoutedEventArgs e)
         {
-            var blob = WpfComponents.LoginComponent.MakeLoginWindow();
-            if (blob.IsChoice1Of2)
+            var blob = WpfComponents.LoginComponent.makeLoginWindow();
+            if (blob.IsChoice1Of3 || blob.IsChoice2Of3)
             {
-                var x = WpfTypes.CHelpers.GetChoice1Of2(blob)?.Value;
+                var isCompleteSuccess = blob.IsChoice1Of3;
+                var x = (blob.getMaybe2Of3() ?? blob.getMaybe1Of3())?.Value;
                 var w = x.Item1;
                 var xaml = x.Item2;
                 var getter = x.Item3;
@@ -40,7 +44,7 @@ namespace WpfApp1
                 {
                     if (x.Item3 != null)
                     {
-                        var cred = x.Item3();
+                        var cred = x.Item3.Value;
                         Console.WriteLine(cred.ToString());
                     } else
                     {
