@@ -37,7 +37,7 @@ module LoginComponent =
                 f ctrl
             | None -> false
 
-    let handlePbBinding' parent bindingExpr =
+    let handlePbBinding parent bindingExpr =
         let bindIt (pb:PasswordBox) =
             printfn "Name is %s" pb.Name
             let binding = System.Windows.Data.Binding()
@@ -51,39 +51,6 @@ module LoginComponent =
             true
 
         handleBinding pboxName bindIt parent
-
-    //let handlePbBinding parent bindingExpr =
-    //    let bindIt (pb:PasswordBox) =
-    //        printfn "Name is %s" pb.Name
-    //        let binding = System.Windows.Data.Binding()
-    //        let bindingName = getPropertyName bindingExpr
-    //        binding.Path <- PropertyPath(bindingName)
-    //        binding.Mode <- Data.BindingMode.OneWayToSource
-    //        let bp = WpfTypes.PasswordBoxAssistant.BoundPasswordProperty
-
-    //        pb.SetBinding(bp, binding) |> ignore
-    //        WpfTypes.PasswordBoxAssistant.SetBindPassword pb (box true)
-
-    //    findByNameOrChildren pboxName parent
-    //    |> function
-    //    | Some (:? PasswordBox as pb) ->
-    //        bindIt pb
-    //        true
-    //    | Some x ->
-    //        getXaml x
-    //        |> failwithf "Found something else %A"
-    //    | None ->
-    //        walkChildren parent
-    //        |> Seq.collect Tree.flatten
-    //        |> Seq.map Child.GetValue
-    //        |> Seq.choose (function | :? PasswordBox as pb -> Some pb | _ -> None)
-    //        |> Seq.tryHead
-    //        |> function
-    //            | Some pb ->
-    //                bindIt pb
-    //            | None ->
-    //                printfn "Did not find it =("
-    //        false
 
     let makeLoginWindowXaml usernameExpr =
         // Header
@@ -125,7 +92,7 @@ module LoginComponent =
             let w = XamlReader.Parse xaml :?> Window
             let model = LoginCredential()
             w.DataContext <- model
-            match handlePbBinding' w pwdExpr with
+            match handlePbBinding w pwdExpr with
             | true ->
                 Choice1Of3(w, xaml, Some (fun () -> model))
             | false -> 

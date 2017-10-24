@@ -39,8 +39,11 @@ namespace WpfApp1
                 var w = x.Item1;
                 var xaml = x.Item2;
                 var getter = x.Item3;
+                // eventually branch on this, after the result setting is fixex
+                var result = w.ShowDialog().GetValueOrDefault();
 
-                if (w.ShowDialog().GetValueOrDefault())
+
+                //if (
                 {
                     if (x.Item3 != null)
                     {
@@ -51,10 +54,10 @@ namespace WpfApp1
                         Console.WriteLine("Getter was null");
                     }
                 }
-                else
-                {
-                    Console.WriteLine("ShowDialog returned something else");
-                }
+                //else
+                //{
+                //    Console.WriteLine("ShowDialog returned something else");
+                //}
             }
             else
             {
