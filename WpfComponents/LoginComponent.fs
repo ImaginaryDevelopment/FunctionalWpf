@@ -13,9 +13,11 @@ module LoginComponent =
     open FunctionalXaml
     open FunctionalParsing
     open System.Windows.Markup
+    module LoginComponentInternals =
+        let pboxName = "IAmAPassword"
+        let btnName = "IAmASubmitButton"
+    open LoginComponentInternals
 
-    let private pboxName = "IAmAPassword"
-    let private btnName = "IAmASubmitButton"
     let handleBinding<'T when 'T :> Control> name (f:'T -> bool) parent = 
         let withMaybe fNone (x:obj option) = 
             match x with
@@ -26,19 +28,19 @@ module LoginComponent =
                 |> failwithf "Found something else %A"
             | None -> fNone()
         findByNameOrChildren name parent
-        |> withMaybe (fun () -> 
-            walkChildren parent 
+        |> withMaybe (fun () ->
+            walkChildren parent
                 |> Seq.collect Tree.flatten
                 |> Seq.map Child.GetValue
                 |> Seq.choose (function | :? 'T as ctrl -> Some ctrl | _ -> None)
                 |> Seq.tryHead
         )
-        |> function 
+        |> function
             | Some ctrl ->
                 f ctrl
             | None -> false
     let handleDiaglogPositiveButtonBinding parent btnName (w:Window) = 
-        let bindIt (b:Button) = 
+        let bindIt (b:Button) =
             printfn "Name is %s" b.Name
             b.Click.Add (fun _ ->
                 w.DialogResult <- Nullable true
@@ -46,6 +48,7 @@ module LoginComponent =
             true
         handleBinding btnName bindIt parent
 
+    // this would be better off with a converter so that the target can be string or SecureString
     let handlePbBinding parent bindingExpr =
         let bindIt (pb:PasswordBox) =
             printfn "Name is %s" pb.Name
@@ -65,12 +68,11 @@ module LoginComponent =
         // Header
         let header = [ label [width 100] "User Name"
                        label [width 100] "Password"
-                       
                         ] |> stackpanel [] Horizontal
 
         //// Row
         let row =   [   textbox [width 100] usernameExpr
-                        passbox pboxName [width 100] // <@@ fun (x:LoginCredential) -> x.Password @@> 
+                        passbox pboxName [width 100]
                     ]
                     |> stackpanel [] Horizontal
 
@@ -78,10 +80,12 @@ module LoginComponent =
         //let sampleTemplate = datatemplate row
 
         // Final composition
-        let sampleGrid = [ header
-                           row
-                           button {Content="submit";Name=btnName} ] |> stackpanel [width 250] Vertical
-                                             |> border Blue
+        let sampleGrid = [  header
+                            row
+                            button {Content="submit";Name=btnName} 
+                            ] 
+                            |> stackpanel [width 250] Vertical
+                            |> border Blue
 
         // Main Window
         let w = window [width 400; height 200; rawAttribute defaultDeclarations] sampleGrid
