@@ -33,7 +33,7 @@ module LoginComponent =
             bindIt pb
             true
         | Some x ->
-            getXaml x 
+            getXaml x
             |> failwithf "Found something else %A"
         | None ->
             walkChildren parent
@@ -48,7 +48,7 @@ module LoginComponent =
                     printfn "Did not find it =("
             false
 
-    let makeLoginWindowXaml usernameExpr pwdExpr =
+    let makeLoginWindowXaml usernameExpr =
         // Header
         let header = [ label [width 100] "User Name"
                        label [width 100] "Password"
@@ -56,8 +56,8 @@ module LoginComponent =
                         ] |> stackpanel [] Horizontal
 
         //// Row
-        let row =   [   textbox [width 100] usernameExpr // 
-                        passbox pboxName [width 100] pwdExpr // <@@ fun (x:LoginCredential) -> x.Password @@> 
+        let row =   [   textbox [width 100] usernameExpr
+                        passbox pboxName [width 100] // <@@ fun (x:LoginCredential) -> x.Password @@> 
                     ]
                     |> stackpanel [] Horizontal
 
@@ -83,7 +83,6 @@ module LoginComponent =
         let xaml =
             makeLoginWindowXaml
                 <@@ fun (x:LoginCredential) -> x.Username @@>
-                pwdExpr
             |> parseWindow
         try
             let w = XamlReader.Parse xaml :?> Window

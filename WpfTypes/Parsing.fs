@@ -16,12 +16,13 @@ module FunctionalXaml =
         | RawAttribute of string
         | NsDeclaration of string*string
 
+    type ButtonSource = { Name:string; Content:string}
     type DataTemplate = DataTemplate of FunFrameworkElement
     and FunFrameworkElement
         = Label of string * Attribute list
-        | Button of String
+        | Button of ButtonSource
         | TextBox of Attribute list * Expr
-        | PasswordBox of name:string*Attribute list * Expr
+        | PasswordBox of name:string*Attribute list
         | StackPanel of FunFrameworkElement list * Attribute list * Orientation
         | Border of Color * FunFrameworkElement
         | ItemsControl of DataTemplate
@@ -33,14 +34,14 @@ module FunctionalXaml =
     let stackpanel attrs orient xs = StackPanel(xs,attrs,orient)
     let border c x = Border(c,x)
     let label attrs s = Label(s,attrs)
-    let button = Button
+    let button= Button
     let textbox attrs b = TextBox(attrs,b)
     let rawAttribute x = RawAttribute x
     let itemscontrol = ItemsControl
     let datatemplate = DataTemplate
     let application = Application
     let window attrs c = Window(c, attrs)
-    let passbox name attrs b = PasswordBox(name,attrs,b)
+    let passbox name attrs = PasswordBox(name,attrs)
 
 open FunctionalXaml
 
@@ -96,12 +97,11 @@ module FunctionalParsing =
         match x with
         | Label (s, attrs) -> sprintf @"<Label Content=""%s"" %s/>" s
                                               (parseAttributes attrs)
-        | Button s -> sprintf @"<Button Content=""%s""/>" s
+        | Button {Content=s;Name=name} -> sprintf @"<Button x:Name=""%s"" Content=""%s""/>" name s
         | TextBox (attrs, b) -> sprintf @"<TextBox %s Text=""%s""/>"
                                         (parseAttributes attrs)
                                         (parseBinding b)
-        | PasswordBox (name, attrs,b) ->
-            let bindingName = getPropertyName b
+        | PasswordBox (name, attrs) ->
             sprintf @"<PasswordBox x:Name=""%s"" %s />"
                 name
                 (parseAttributes attrs)
@@ -126,7 +126,7 @@ module FunctionalParsing =
                 sprintf @"<Window %s>%s</Window>"
                         (parseAttributes attrs)
                         (parseFrameworkElement c)
-    let defaultDeclarations = 
+    let defaultDeclarations =
         sprintf """ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" """
 
