@@ -32,6 +32,7 @@ namespace WpfApp1
         void Button_Click(object sender, RoutedEventArgs e)
         {
             var blob = WpfComponents.LoginComponent.makeLoginWindow();
+            // make sure we can deconstruct this in C#
             if (blob.IsChoice1Of3 || blob.IsChoice2Of3)
             {
                 var isCompleteSuccess = blob.IsChoice1Of3;
@@ -41,7 +42,6 @@ namespace WpfApp1
                 var getter = x.Item3;
                 // eventually branch on this, after the result setting is fixex
                 var result = w.ShowDialog().GetValueOrDefault();
-
 
                 //if (
                 {

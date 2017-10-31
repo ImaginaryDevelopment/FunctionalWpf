@@ -11,10 +11,16 @@ module Map =
 let delimit d (items: string seq) =
     let items' = items |> Array.ofSeq
     String.Join(separator=d,values=items')
+type System.Object with
+    static member As<'T> (x:obj) = 
+        match x with
+        | :? 'T as t -> Some t
+        | _ -> None
 
 type IDumper =
     abstract member Dump: description: string * value:'T -> unit
     abstract member Dump: value:'T -> unit
+
 let mutable logger : IDumper option = None
 
 let logt title (x:obj) =

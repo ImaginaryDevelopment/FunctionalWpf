@@ -5,6 +5,7 @@ open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Quotations.Patterns
 
 open WpfTypes
+open WpfTypes.Helpers
 
 module LoginComponent =
     open System.Windows
@@ -19,7 +20,7 @@ module LoginComponent =
     open LoginComponentInternals
 
     let handleBinding<'T when 'T :> Control> name (f:'T -> bool) parent = 
-        let withMaybe fNone (x:obj option) = 
+        let withMaybe fNone (x:obj option) =
             match x with
             | Some (:? 'T as ctrl) ->
                 Some ctrl
@@ -32,7 +33,7 @@ module LoginComponent =
             walkChildren parent
                 |> Seq.collect Tree.flatten
                 |> Seq.map Child.GetValue
-                |> Seq.choose (function | :? 'T as ctrl -> Some ctrl | _ -> None)
+                |> Seq.choose Object.As<'T> (*(function | :? 'T as ctrl -> Some ctrl | _ -> None)*)
                 |> Seq.tryHead
         )
         |> function
